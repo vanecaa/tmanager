@@ -1,0 +1,7 @@
+services:
+  - type: web
+    name: task-manager
+    env: python
+    plan: free
+    buildCommand: ""
+    startCommand: python app.py
