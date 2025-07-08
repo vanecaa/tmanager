@@ -4,9 +4,15 @@ import pandas as pd
 
 FILE = 'tasks.xlsx'
 if not os.path.exists(FILE):
-    df = pd.DataFrame([{'id': 1, 'task': 'Пример задачи', 'status': 'в работе', 'deadline': '2025-07-01'}])
+    df = pd.DataFrame([{
+        'id': 1,
+        'task': 'Пример задачи',
+        'description': 'Описание к задаче',
+        'status': 'в работе',
+        'deadline': '2025-07-01'
+    }])
     df.to_excel(FILE, index=False)
-
+    
 app = Flask(__name__)
 app.secret_key = 'supersecretkey' 
 
@@ -25,13 +31,14 @@ def index():
 def add():
     df = load_tasks()
     task = request.form.get('task', '').strip()
+    description = request.form.get('description', '').strip()
     status = request.form.get('status', 'в работе').strip()
     deadline = request.form.get('deadline', '').strip()
     if not task:
         flash('Поле задачи не может быть пустым!')
         return redirect(url_for('index'))
     new_id = int(df['id'].max()) + 1 if not df.empty else 1
-    new_row = pd.DataFrame([{'id': new_id, 'task': task, 'status': status, 'deadline': deadline}])
+    new_row = pd.DataFrame([{'id': new_id, 'task': task, 'description': description, 'status': status, 'deadline': deadline}])
     df = pd.concat([df, new_row], ignore_index=True)
     save_tasks(df)
     flash('Задача добавлена!')
@@ -44,12 +51,14 @@ def edit(task_id):
     if not idx.empty:
         i = idx[0]
         task = request.form.get('task', '').strip()
+        description = request.form.get('description', '').strip()
         status = request.form.get('status', '').strip()
         deadline = request.form.get('deadline', '').strip()
         if not task:
             flash('Поле задачи не может быть пустым!')
             return redirect(url_for('index'))
         df.at[i, 'task'] = task
+        df.at[i, 'description'] = description
         df.at[i, 'status'] = status
         df.at[i, 'deadline'] = deadline
         save_tasks(df)
